@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historical Weather Analysis</title>
+    
+    <!-- Material Design 3 + Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Material Theme -->
+    <link href="css/theme.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-surface">
+    <!-- Navigation -->
+    <<nav class="navbar navbar-expand-lg bg-surface-container sticky-top">
+        <div class="container">
+            <a class="navbar-brand text-primary" href="index.html">
+                <span class="material-symbols-outlined align-middle">analytics</span>
+                Historical Analysis
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Current Weather</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Historical</a>
+                    </li>
+                </ul>
+                
+                <!-- Unit Switcher -->
+                <div class="btn-group ms-3">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-unit="C">°C</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-unit="F">°F</button>
+                </div>
+                
+                <!-- Search Form -->
+                <form class="d-flex ms-3">
+                    <input class="form-control me-2" type="search" placeholder="Search city" aria-label="Search" id="citySearch">
+                    <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <!-- Date Range Picker -->
+        <section class="card weather-card rounded-4 mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-control rounded-pill" id="start_date">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">End Date</label>
+                        <input type="date" class="form-control rounded-pill" id="end_date">
+                    </div>
+                    <div class="col-12 text-center">
+                        <button class="btn btn-primary rounded-pill px-4" id="analyzeButton">
+                            <span class="material-symbols-outlined">search</span>
+                            Analyze
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistical Summary -->
+        <section class="row mb-4">
+            <div class="col-md-3">
+                <div class="card daily-card rounded-3">
+                    <div class="card-body">
+                        <h6 class="text-uppercase text-secondary">Max Temp</h6>
+                        <h3 class="display-6" id="maxTemp">-</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card daily-card rounded-3">
+                    <div class="card-body">
+                        <h6 class="text-uppercase text-secondary">Min Temp</h6>
+                        <h3 class="display-6" id="minTemp">-</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card daily-card rounded-3">
+                    <div class="card-body">
+                        <h6 class="text-uppercase text-secondary">Total Rain</h6>
+                        <h3 class="display-6" id="totalRain">-</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card daily-card rounded-3">
+                    <div class="card-body">
+                        <h6 class="text-uppercase text-secondary">Wind Speed</h6>
+                        <h3 class="display-6" id="maxWind">-</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Time Series Chart Section -->
+        <section class="card rounded-4 mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Temperature Trends</h5>
+                <div class="chart-container position-relative">
+                    <canvas id="tempChart"></canvas>
+                    <div class="loading-overlay d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                    <div class="error-overlay alert alert-danger m-3 d-none">
+                        <h6>Error</h6>
+                        <p id="errorMessage"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Wind Rose Section -->
+        <section class="card rounded-4 mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Wind Direction Analysis</h5>
+                <div class="chart-container position-relative">
+                    <canvas id="windRose"></canvas>
+                    <div class="loading-overlay d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                    <div class="error-overlay alert alert-danger m-3 d-none"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Thermal Amplitude Section -->
+        <section class="card rounded-4">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Daily Temperature Range</h5>
+                <div class="chart-container position-relative">
+                    <canvas id="thermalChart"></canvas>
+                    <div class="loading-overlay d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                    <div class="error-overlay alert alert-danger m-3 d-none"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-surface-container">
+        <div class="container text-center text-secondary">
+            Powered by OpenMeteo API,Made with ♡♡♡ by Om Bhortake
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/history.js" type="module"></script>
+</body>
+</html>
